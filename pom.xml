@@ -53,11 +53,11 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
-							<minimizeJar>true</minimizeJar>
+							<minimizeJar>false</minimizeJar>
 							<relocations>
 								<relocation>
 									<pattern>twitter4j</pattern>
-									<shadedPattern>com.wlan222.twitbukkit.wlan222.twitter4j</shadedPattern>
+									<shadedPattern>com.wlan222.twitbukkit.twitter4j</shadedPattern>
 								</relocation>
 							</relocations>
 
@@ -82,6 +82,11 @@
 		<dependency>
 			<groupId>org.twitter4j</groupId>
 			<artifactId>twitter4j-core</artifactId>
+			<version>[3.0,)</version>
+		</dependency>
+		<dependency>
+			<groupId>org.twitter4j</groupId>
+			<artifactId>twitter4j-stream</artifactId>
 			<version>[3.0,)</version>
 		</dependency>
 	</dependencies>

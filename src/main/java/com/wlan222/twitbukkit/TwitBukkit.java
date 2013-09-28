@@ -1,50 +1,77 @@
 package com.wlan222.twitbukkit;
 
-import java.util.List;
+import java.util.ArrayList;
 
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import twitter4j.Paging;
-import twitter4j.Status;
-import twitter4j.Twitter;
-import twitter4j.TwitterException;
-import twitter4j.TwitterFactory;
+import com.wlan222.twitbukkit.socialnetworks.SocialTwitter;
+import com.wlan222.twitbukkit.socialnetworks.SocialUnauthTwitter;
 
-public class TwitBukkit extends JavaPlugin {
+public class TwitBukkit extends JavaPlugin implements Listener {
+
+	public static String consumer_key = "";
+
+	public static String consumer_secret = "";
+
+	public static String access_token = "";
+
+	public static String access_secret = "";
 
 	public void onEnable() {
-		try {
-			for (Status s : getTweets("google", 1, 10)) {
-				getLogger().info(
-						"[" + s.getUser().getName() + "] " + s.getText());
+		SocialUnauthTwitter sut = new SocialUnauthTwitter();
+		sut.auth();
+		sut.init();
+		SocialTwitter st = new SocialTwitter();
+		st.auth();
+		st.init();
+	}
+
+	@Override
+	public boolean onCommand(CommandSender sender, Command cmd, String label,
+			String[] args) {
+
+		if (cmd.getName().equalsIgnoreCase("get")) {
+			if (args.length == 1) {
+				new TwitterThread(args[0], sender).run();
 			}
-		} catch (TwitterException e) {
+		}
+		return true;
+
+	}
+}
+
+class TwitterThread extends Thread {
+
+	private String twitterUser;
+	private CommandSender sender;
+
+	public TwitterThread(String twitterUser, CommandSender sender) {
+		this.twitterUser = twitterUser;
+		this.sender = sender;
+	}
+
+	@Override
+	public void run() {
+		SocialUnauthTwitter sut = new SocialUnauthTwitter();
+		sut.auth();
+		ArrayList<SocialStatus> statuses = null;
+		try {
+			statuses = sut.getNews(twitterUser);
+		} catch (UnauthenthicatedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-
-	public List<Status> getTweets(String username, Paging p)
-			throws TwitterException {
-		Twitter twitter = TwitterFactory.getSingleton();
-		Paging paging = new Paging(1, 100);
-		List<Status> statuses;
-
-		statuses = twitter.getUserTimeline(username, paging);
-
-		return statuses;
-	}
-
-	//username = The User whose Tweets we want
-	//start = use 1 if unclear
-	//stop = use how many tweets to get
-	public List<Status> getTweets(String username, int start, int stop)
-			throws TwitterException {
-		return getTweets(username, new Paging(start, stop));
-	}
-
-	public List<Status> getTweets(String username) throws TwitterException {
-		return getTweets(username, 1, 100);
+		if (statuses != null) {
+			for (SocialStatus s : statuses) {
+				sender.sendMessage("[" + s.getOrigin() + "] [" + s.getAuthor()
+						+ "] " + s.getMessage());
+			}
+		} else {
+			sender.sendMessage("Couldn't get tweets");
+		}
 	}
 
 }

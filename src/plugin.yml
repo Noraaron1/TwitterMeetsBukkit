@@ -1,0 +1,10 @@
+name: TwitBukkit
+version: 1.0R2
+description: TwitBukkit
+author: wlan222
+
+main: com.wlan222.twitbukkit.TwitBukkit
+
+commands:
+   get:
+     description: get tweets
